@@ -10,35 +10,29 @@
    // Adds the color recipes for browser UI colors (toolbar, bookmarks bar,
    // downloads bar etc). While both design systems continue to exist, the
    // material recipes are intended to leverage the existing chrome color mixers,
-@@ -469,7 +472,8 @@ void AddMaterialChromeColorMixer(ui::Col
+@@ -469,7 +472,7 @@ void AddMaterialChromeColorMixer(ui::Col
        ui::kColorSysOnSurfaceSubtle};
  
    // Toolbar colors.
 -  mixer[kColorToolbar] = {ui::kColorSysBase};
-+  mixer[kColorToolbar] = {dark_mode ? ui::kColorFrameActive
-+                                    : ui::kColorSysBase};
++  mixer[kColorToolbar] = {ui::kColorFrameActive};
    mixer[kColorToolbarButtonBackgroundHighlightedDefault] = {
        ui::kColorSysStateHoverOnSubtle};
    mixer[kColorToolbarButtonBorder] = {ui::kColorSysOutline};
-@@ -481,7 +485,10 @@ void AddMaterialChromeColorMixer(ui::Col
+@@ -481,7 +484,7 @@ void AddMaterialChromeColorMixer(ui::Col
        {ui::kColorSysStateDisabled}, {kColorToolbar})};
    mixer[kColorToolbarButtonIconPressed] = {kColorToolbarButtonIconHovered};
    mixer[kColorToolbarButtonText] = {ui::kColorSysOnSurfaceSecondary};
 -  mixer[kColorToolbarContentAreaSeparator] = {ui::kColorSysSurfaceVariant};
-+  mixer[kColorToolbarContentAreaSeparator] = {
-+      dark_mode ? ui::GetResultingPaintColor({ui::kColorSysStateHoverOnSubtle},
-+                                             {kColorToolbar})
-+                : ui::kColorSysSurfaceVariant};
++  mixer[kColorToolbarContentAreaSeparator] = {ui::GetResultingPaintColor({ui::kColorSysStateHoverOnSubtle},{kColorToolbar})};
    mixer[kColorToolbarFeaturePromoHighlight] = {ui::kColorSysPrimary};
    mixer[kColorToolbarIconContainerBorder] = {ui::kColorSysNeutralOutline};
    mixer[kColorToolbarInkDropHover] = {ui::kColorSysStateHoverOnSubtle};
-@@ -490,8 +497,11 @@ void AddMaterialChromeColorMixer(ui::Col
+@@ -490,8 +493,9 @@ void AddMaterialChromeColorMixer(ui::Col
    mixer[kColorToolbarExtensionSeparatorDisabled] = {
        kColorToolbarButtonIconInactive};
    mixer[kColorToolbarSeparator] = {kColorToolbarSeparatorDefault};
-+  const auto toolbar_separator_bg = dark_mode
-+                                        ? ui::ColorTransform(ui::kColorSysBase)
-+                                        : ui::ColorTransform(kColorToolbar);
++  const auto toolbar_separator_bg = ui::ColorTransform(ui::kColorSysBase);
    mixer[kColorToolbarSeparatorDefault] =
 -      ui::AlphaBlend(kColorToolbarButtonIcon, kColorToolbar, 0x3A);
 +      ui::AlphaBlend(kColorToolbarButtonIcon, toolbar_separator_bg, 0x3A);
@@ -47,7 +41,7 @@
    mixer[kColorToolbarTextDisabled] = {kColorToolbarTextDisabledDefault};
 --- a/chrome/browser/ui/color/chrome_color_mixer.cc
 +++ b/chrome/browser/ui/color/chrome_color_mixer.cc
-@@ -119,9 +119,13 @@ ui::ColorTransform GetToolbarTopSeparato
+@@ -119,9 +119,11 @@ ui::ColorTransform GetToolbarTopSeparato
  // Apply updates to the Omnibox background color tokens per GM3 spec.
  void ApplyGM3OmniboxBackgroundColor(ui::ColorMixer& mixer,
                                      const ui::ColorProviderKey& key) {
@@ -56,34 +50,28 @@
    // Apply omnibox background color updates only to non-themed clients.
    if (!key.custom_theme) {
 -    mixer[kColorLocationBarBackground] = {ui::kColorSysOmniboxContainer};
-+    mixer[kColorLocationBarBackground] = {
-+        dark_mode ? ui::ColorTransform(kColorOmniboxResultsBackground)
-+                  : ui::ColorTransform(ui::kColorSysOmniboxContainer)};
++    mixer[kColorLocationBarBackground] = {ui::ColorTransform(kColorOmniboxResultsBackground)};
      mixer[kColorLocationBarBackgroundHovered] =
          ui::GetResultingPaintColor(ui::kColorSysStateHoverBrightBlendProtection,
                                     kColorLocationBarBackground);
-@@ -758,8 +762,10 @@ void AddChromeColorMixer(ui::ColorProvid
+@@ -758,8 +760,7 @@ void AddChromeColorMixer(ui::ColorProvid
        ui::SetAlpha(kColorToolbarButtonIcon, gfx::kGoogleGreyAlpha500)};
    mixer[kColorToolbarButtonIconPressed] = {kColorToolbarButtonIconHovered};
    mixer[kColorToolbarButtonText] = ui::GetColorWithMaxContrast(kColorToolbar);
 -  mixer[kColorToolbarContentAreaSeparator] =
 -      ui::AlphaBlend(kColorToolbarButtonIcon, kColorToolbar, 0x3A);
-+  mixer[kColorToolbarContentAreaSeparator] = {
-+      dark_mode ? ui::GetResultingPaintColor({ui::kColorSysStateHoverOnSubtle},
-+                                             {kColorToolbar})
-+                : ui::kColorSysSurfaceVariant};
++  mixer[kColorToolbarContentAreaSeparator] = {ui::GetResultingPaintColor({ui::kColorSysStateHoverOnSubtle},{kColorToolbar})};
    mixer[kColorToolbarFeaturePromoHighlight] =
        ui::PickGoogleColor(ui::kColorAccent, kColorToolbar,
                            color_utils::kMinimumVisibleContrastRatio);
 --- a/ui/color/ui_color_mixer.cc
 +++ b/ui/color/ui_color_mixer.cc
-@@ -31,7 +31,8 @@ void AddUiColorMixer(ColorProvider* prov
+@@ -31,7 +31,7 @@ void AddUiColorMixer(ColorProvider* prov
    mixer[kColorBadgeInCocoaMenuBackground] = {kColorBadgeBackground};
    mixer[kColorBadgeInCocoaMenuForeground] = {kColorBadgeForeground};
    mixer[kColorBubbleBackground] = {kColorPrimaryBackground};
 -  mixer[kColorBubbleBorder] = {kColorSysSurfaceVariant};
-+  mixer[kColorBubbleBorder] = {dark_mode ? ui::kColorSysStateHoverOnSubtle
-+                                         : ui::kColorSysSurfaceVariant};
++  mixer[kColorBubbleBorder] = {ui::kColorSysStateHoverOnSubtle};
    mixer[kColorBubbleBorderShadowLarge] = {SetAlpha(kColorShadowBase, 0x1A)};
    mixer[kColorBubbleBorderShadowSmall] = {SetAlpha(kColorShadowBase, 0x33)};
    mixer[kColorBubbleFooterBackground] = {kColorSubtleEmphasisBackground};
